@@ -62,3 +62,15 @@ exports.getContent = async (modulId) => {
 
 exports.delete = (id, userId) =>
   db.query('UPDATE modul_ajar SET deleted_at = NOW() WHERE id = ? AND user_id = ?', [id, userId]);
+
+
+// Klaim atomik anti double-generate: hanya berhasil jika status BUKAN 'generating'
+exports.claimGenerating = async (id, userId) => {
+  const [res] = await db.query(
+    `UPDATE modul_ajar SET status = 'generating'
+       WHERE id = ? AND user_id = ? AND deleted_at IS NULL
+         AND (status IS NULL OR status <> 'generating')`,
+    [id, userId]
+  );
+  return res.affectedRows > 0;
+};

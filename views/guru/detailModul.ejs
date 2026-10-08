@@ -5,7 +5,9 @@
   <div class="doc-actions">
     <a href="/guru" class="btn btn-small" style="text-decoration: none;">&larr; Kembali ke Dashboard</a>
     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-      <a href="/guru/modul/<%= modul.id %>/generate" class="btn btn-small" onclick="return confirm('Apakah Anda yakin ingin menyusun ulang modul ini dengan AI?');">🔄 Susun Ulang AI</a>
+      <form action="/guru/modul/<%= modul.id %>/generate" method="POST" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menyusun ulang modul ini dengan AI?');">
+        <button type="submit" class="btn btn-small">🔄 Susun Ulang AI</button>
+      </form>
       <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
     </div>
   </div>
@@ -25,7 +27,9 @@
     <% if (!konten) { %>
       <div style="text-align: center; padding: 40px 20px;">
         <p class="muted">Konten modul ini belum dibuat atau masih kosong.</p>
-        <a href="/guru/modul/<%= modul.id %>/generate" class="btn btn-primary">⚡ Generate dengan AI 9Router</a>
+        <form action="/guru/modul/<%= modul.id %>/generate" method="POST" style="display: inline;" onsubmit="return confirm('Susun modul ini dengan AI?')">
+          <button type="submit" class="btn btn-primary">⚡ Generate dengan AI 9Router</button>
+        </form>
       </div>
     <% } else { %>
       <div class="konten-modul">

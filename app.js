@@ -2,6 +2,7 @@ require('dotenv').config();               // harus paling atas
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const db = require('./config/db');
 
 const app = express();
 
@@ -40,5 +41,12 @@ app.use((err, req, res, next) => {
   res.status(500).send('Terjadi kesalahan pada server: ' + (err.message || err));
 });
 
+// Pulihkan modul yang statusnya menggantung 'generating'
+// (mis. server restart saat AI sedang bekerja) agar tidak macet selamanya
+db.query("UPDATE modul_ajar SET status = 'gagal' WHERE status = 'generating'")
+  .then(([r]) => { if (r.affectedRows > 0) console.log(`Mereset ${r.affectedRows} modul menggantung ke status gagal`); })
+  .catch((err) => console.error('Gagal mereset status generating:', err.message));
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server berjalan di http://localhost:${port}`));
+

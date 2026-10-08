@@ -1,6 +1,7 @@
 const Modul = require('../models/modulModel');
 const Ref = require('../models/referensiModel');
 const openai = require('../config/ai');
+const sanitizeHtml = require('sanitize-html');
 
 exports.dashboard = async (req, res) => {
   const [modul, kelas, atp, cp] = await Promise.all([
@@ -20,33 +21,78 @@ exports.buatModul = async (req, res) => {
   res.redirect('/guru');
 };
 
-exports.generateModul = async (req, res) => {
+// POST /guru/modul/:id/generate — minta generate; AI berjalan di background
+exports.mintaGenerate = async (req, res) => {
   const modulId = req.params.id;
   const userId = req.session.user.id;
 
+  // Klaim atomik: gagal jika modul tidak ada ATAU sedang dalam proses generate
+  const diklaim = await Modul.claimGenerating(modulId, userId);
+  if (diklaim) {
+    // Jalankan di background tanpa di-await agar respons langsung kembali
+    prosesGenerate(modulId, userId).catch((err) =>
+      console.error('Background generate gagal:', err)
+    );
+    req.session.pesan = 'AI sedang menyusun modul. Halaman akan refresh otomatis sampai selesai.';
+  } else {
+    const modul = await Modul.findById(modulId, userId);
+    if (modul && modul.status === 'generating') {
+      req.session.pesan = 'Modul masih dalam proses penyusunan AI. Mohon tunggu sebentar.';
+    } else {
+      req.session.error = 'Modul tidak ditemukan';
+    }
+  }
+  res.redirect('/guru');
+};
+
+// Pekerja background: menyusun modul dengan AI lalu menyimpan hasilnya
+async function prosesGenerate(modulId, userId) {
   try {
     const modul = await Modul.findById(modulId, userId);
-    if (!modul) {
-      req.session.error = 'Modul tidak ditemukan';
-      return res.redirect('/guru');
-    }
-
-    // Set status modul menjadi generating
-    await Modul.updateStatus(modulId, 'generating');
+    if (!modul) return;
 
     // Ambil data TP dan CP terkait
     const tpList = await Modul.getTpCp(modul.atp_id);
     const tpText = tpList.length > 0
       ? tpList.map(t => `- [${t.kode_tp}] ${t.deskripsi_tp} (Elemen: ${t.elemen})`).join('\n')
       : 'Tujuan Pembelajaran sesuai kurikulum';
+    // Dedupe CP: satu CP yang dipakai banyak TP cukup dikirim sekali (hemat token)
     const cpText = tpList.length > 0
-      ? tpList.map(t => t.deskripsi_cp).join('; ')
+      ? [...new Set(tpList.map((t) => t.deskripsi_cp).filter(Boolean))].join('; ')
       : '-';
 
-    const modelName = process.env.NINEROUTER_MODEL || 'combo-modulajar';
+    const { systemPrompt, userPrompt } = bangunPrompt(modul, tpText, cpText);
 
-    // Kontrak format: ditulis sekali di system prompt agar stabil di setiap generate
-    const systemPrompt = `Kamu adalah penyusun Modul Ajar Kurikulum Merdeka (Kemendikbudristek) untuk jenjang SD yang presisi dan konsisten.
+    // Panggil 9Router API (menggunakan OpenAI SDK) dengan batas waktu
+    const response = await panggilAI(systemPrompt, userPrompt);
+
+    let htmlResult = response.choices[0].message.content || '';
+    htmlResult = htmlResult.replace(/```html/gi, '').replace(/```/g, '').trim();
+
+    // Sanitasi: hanya tag yang diizinkan kontrak format yang boleh lolos
+    htmlResult = sanitizeHtml(htmlResult, {
+      allowedTags: ['h2', 'h3', 'h4', 'p', 'ul', 'ol', 'li', 'table', 'thead', 'tbody',
+                    'tr', 'th', 'td', 'strong', 'em', 'br'],
+      allowedAttributes: {},
+    });
+
+    // Simpan konten modul dan update status menjadi selesai
+    await Modul.saveContent(modulId, 1, htmlResult);
+    await Modul.updateStatus(modulId, 'selesai');
+  } catch (error) {
+    console.error('Error generate modul dengan 9Router:', error);
+    try {
+      await Modul.updateStatus(modulId, 'gagal');
+    } catch (e) {
+      console.error('Gagal menandai modul sebagai gagal:', e.message);
+    }
+  }
+}
+
+// Susun system prompt + user prompt dari data modul
+function bangunPrompt(modul, tpText, cpText) {
+// Kontrak format: ditulis sekali di system prompt agar stabil di setiap generate
+    const systemPrompt = `Anda adalah penyusun Modul Ajar Kurikulum Merdeka (Kemendikbudristek) untuk jenjang SD yang presisi dan konsisten.
 
 KONTRAK FORMAT OUTPUT — patuhi di setiap respons tanpa kecuali:
 1. Seluruh respons HARUS berupa satu dokumen HTML valid. Dilarang menulis kalimat pembuka, kalimat penutup, atau penjelasan apa pun di luar HTML.
@@ -110,32 +156,28 @@ ${tpText}
 - Hindari basa-basi; isi padat dan siap pakai.
 </ATURAN_ISI>`;
 
-    // Panggil 9Router API (menggunakan OpenAI SDK)
-    const response = await openai.chat.completions.create({
-      model: modelName,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.2, // rendah = struktur konsisten antar generate
-    });
+  return { systemPrompt, userPrompt };
+}
 
-    let htmlResult = response.choices[0].message.content || '';
-    htmlResult = htmlResult.replace(/```html/gi, '').replace(/```/g, '').trim();
+// Panggil 9Router dengan batas waktu agar request tidak menggantung selamanya
+function panggilAI(systemPrompt, userPrompt) {
+  const modelName = process.env.NINEROUTER_MODEL || 'combo-modulajar';
+  const BATAS_MS = 180000; // 3 menit
 
-    // Simpan konten modul dan update status menjadi selesai
-    await Modul.saveContent(modulId, 1, htmlResult);
-    await Modul.updateStatus(modulId, 'selesai');
-
-    req.session.pesan = `Modul "${modul.judul}" berhasil disusun dengan AI 9Router!`;
-    res.redirect(`/guru/modul/${modulId}`);
-  } catch (error) {
-    console.error('Error generate modul dengan 9Router:', error);
-    await Modul.updateStatus(modulId, 'gagal');
-    req.session.error = `Gagal menyusun modul dengan AI: ${error.message}`;
-    res.redirect('/guru');
-  }
-};
+  const p = openai.chat.completions.create({
+    model: modelName,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    temperature: 0.2, // rendah = struktur konsisten antar generate
+    max_tokens: 12000, // batas atas agar output tidak liar
+  });
+  const pewaktu = new Promise((_, tolak) =>
+    setTimeout(() => tolak(new Error('AI timeout setelah 3 menit')), BATAS_MS)
+  );
+  return Promise.race([p, pewaktu]);
+}
 
 exports.lihatModul = async (req, res) => {
   const modulId = req.params.id;
@@ -153,5 +195,7 @@ exports.hapusModul = async (req, res) => {
   req.session.pesan = 'Modul ajar berhasil dihapus';
   res.redirect('/guru');
 };
+
+
 
 
