@@ -14,13 +14,10 @@
 
   <article class="card modul-doc">
     <header class="modul-kop">
-      <p class="kop-eyebrow">Modul Ajar &bull; Kurikulum Merdeka</p>
+      <p class="kop-eyebrow">Modul Ajar</p>
       <h1 class="kop-judul"><%= modul.judul %></h1>
-      <div class="kop-meta">
-        <span class="kop-chip">Fase <%= modul.fase %></span>
-        <span class="kop-chip">Kelas <%= modul.kelas %></span>
-        <span class="kop-chip">Semester <%= modul.semester %></span>
-      </div>
+      <hr class="kop-rule">
+      <p class="kop-meta">Kurikulum Merdeka &nbsp;•&nbsp; Fase <%= modul.fase %> &nbsp;•&nbsp; Kelas <%= modul.kelas %> &nbsp;•&nbsp; Semester <%= modul.semester %> &nbsp;•&nbsp; <%= modul.jumlah_pertemuan || 4 %> Pertemuan</p>
       <p class="kop-atp"><%= modul.judul_atp %></p>
     </header>
 
@@ -40,46 +37,29 @@
 </main>
 
 <style>
-/* ===== Kop / blok judul dokumen ===== */
+/* ===== Kop dokumen: hitam-putih, gaya dokumen resmi ===== */
 .doc-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
 .modul-doc { padding: 0; overflow: hidden; }
-.modul-kop {
-  background: linear-gradient(135deg, #0f766e 0%, #115e59 60%, #134e4a 100%);
-  color: #fff;
-  padding: 36px 36px 30px;
-  position: relative;
-}
-.modul-kop::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
-}
-.kop-eyebrow { margin: 0 0 10px; font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; color: #99f6e4; font-weight: 700; }
-.kop-judul { margin: 0 0 14px; font-size: 2rem; line-height: 1.25; text-transform: capitalize; color: #fff; }
-.kop-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-.kop-chip { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.4); padding: 4px 14px; border-radius: 999px; font-size: .8rem; font-weight: 600; }
-.kop-atp { margin: 0; font-size: .92rem; color: #ccfbf1; }
+.modul-kop { background: #fff; color: #111; border: 2px solid #111; padding: 36px 32px 30px; text-align: center; }
+.kop-eyebrow { margin: 0 0 8px; font-size: .78rem; letter-spacing: .24em; text-transform: uppercase; color: #555; font-weight: 700; }
+.kop-judul { margin: 0 0 12px; font-size: 2rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: .02em; }
+.kop-rule { width: 80px; height: 3px; background: #000; border: 0; margin: 0 auto 14px; }
+.kop-meta { margin: 0 0 6px; font-size: .92rem; color: #333; }
+.kop-atp { margin: 0; font-size: .85rem; color: #666; font-style: italic; }
 
-/* ===== Isi modul hasil AI ===== */
-.konten-modul { padding: 10px 36px 36px; line-height: 1.75; }
-.konten-modul h2 {
-  color: var(--hijau-tua);
-  font-size: 1.25rem;
-  background: #f0fdfa;
-  border-left: 6px solid var(--hijau);
-  padding: 10px 16px;
-  border-radius: 0 8px 8px 0;
-  margin: 34px 0 16px;
-}
-.konten-modul h3 { color: var(--hijau); font-size: 1.05rem; margin: 24px 0 10px; }
-.konten-modul h4 { color: #334155; font-size: .95rem; margin: 18px 0 8px; }
+/* ===== Isi modul: hitam-putih, tertata rapi ===== */
+.konten-modul { padding: 10px 36px 36px; line-height: 1.75; color: #111; }
+.konten-modul h2 { color: #000; font-size: 1.2rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 3px double #000; padding-bottom: 8px; margin: 34px 0 16px; }
+.konten-modul h3 { color: #000; font-size: 1.02rem; margin: 24px 0 10px; }
+.konten-modul h4 { color: #000; font-size: .95rem; margin: 18px 0 8px; }
 .konten-modul p { margin: 10px 0; text-align: justify; }
 .konten-modul ul, .konten-modul ol { padding-left: 24px; margin: 10px 0; }
 .konten-modul li { margin-bottom: 6px; }
 .konten-modul table { margin: 16px 0; width: 100%; border-collapse: collapse; font-size: .92rem; }
-.konten-modul table th, .konten-modul table td { border: 1px solid #cbd5e1; padding: 9px 12px; vertical-align: top; text-align: left; }
-.konten-modul table th { background: var(--hijau-tua); color: #fff; }
-.konten-modul table tr:nth-child(even) td { background: #f8fafc; }
-.konten-modul strong { color: #0f172a; }
+.konten-modul table th, .konten-modul table td { border: 1px solid #000; padding: 9px 12px; vertical-align: top; text-align: left; }
+.konten-modul table th { background: #000; color: #fff; }
+.konten-modul table tr:nth-child(even) td { background: #f5f5f5; }
+.konten-modul strong { color: #000; }
 
 /* ===== Cetak / simpan PDF ===== */
 @media print {
@@ -87,10 +67,8 @@
   body { background: #fff; }
   .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
   .card { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
-  .modul-kop, .konten-modul table th, .konten-modul h2 {
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .konten-modul h2, .konten-modul h3 { page-break-after: avoid; }
+  .konten-modul table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .konten-modul h2, .konten-modul h3, .konten-modul h4 { page-break-after: avoid; }
   .konten-modul table, .konten-modul tr { page-break-inside: avoid; }
 }
 </style>
