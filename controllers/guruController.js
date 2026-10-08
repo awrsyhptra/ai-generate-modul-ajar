@@ -14,9 +14,8 @@ exports.dashboard = async (req, res) => {
 };
 
 exports.buatModul = async (req, res) => {
-  const { judul, kelas_id, atp_id, semester, jumlah_pertemuan } = req.body;
-  const jp = Math.min(Math.max(parseInt(jumlah_pertemuan, 10) || 4, 1), 16);
-  await Modul.create(req.session.user.id, atp_id, kelas_id, judul, semester, jp);
+  const { judul, kelas_id, atp_id, semester } = req.body;
+  await Modul.create(req.session.user.id, atp_id, kelas_id, judul, semester);
 
   req.session.pesan = 'Draf modul ajar berhasil dibuat. Silakan klik "⚡ Generate AI" untuk mulai menyusun isi modul.';
   res.redirect('/guru');
@@ -92,7 +91,6 @@ async function prosesGenerate(modulId, userId) {
 
 // Susun system prompt + user prompt dari data modul
 function bangunPrompt(modul, tpText, cpText) {
-  const jp = modul.jumlah_pertemuan || 4;
 // Kontrak format: ditulis sekali di system prompt agar stabil di setiap generate
     const systemPrompt = `Anda adalah penyusun Modul Ajar Kurikulum Merdeka (Kemendikbudristek) untuk jenjang SD yang presisi dan konsisten.
 
@@ -116,7 +114,6 @@ KONTRAK FORMAT OUTPUT — patuhi di setiap respons tanpa kecuali:
 Judul / Topik: ${modul.judul}
 Jenjang: Fase ${modul.fase} (Kelas ${modul.kelas})
 Semester: Semester ${modul.semester}
-Jumlah Pertemuan: ${jp} pertemuan
 Alur Tujuan Pembelajaran (ATP): ${modul.judul_atp}
 Capaian Pembelajaran (CP): "${cpText}"
 Tujuan Pembelajaran (TP):
@@ -135,7 +132,7 @@ ${tpText}
 <h3>A. Tujuan Pembelajaran Operasional</h3> : <ol> tujuan yang operasional dan terukur (pola ABCD: Audience, Behavior, Condition, Degree).
 <h3>B. Pemahaman Bermakna</h3> : satu <p>.
 <h3>C. Pertanyaan Pemantik</h3> : <ul> berisi 3-5 pertanyaan.
-<h3>D. Kegiatan Pembelajaran</h3> : bagi seluruh materi menjadi TEPAT ${jp} pertemuan yang berurutan dan berkesinambungan (Pertemuan 1 sampai Pertemuan ${jp}).
+<h3>D. Kegiatan Pembelajaran</h3> : bagi seluruh materi menjadi beberapa pertemuan yang berurutan dan berkesinambungan. Tentukan sendiri jumlah pertemuan yang ideal (2 sampai 8 pertemuan) berdasarkan keluasan materi dan banyaknya TP — materi yang padat boleh lebih banyak pertemuan, materi yang ringan cukup sedikit.
 Setiap pertemuan memakai <h4>Pertemuan N: [fokus materi pertemuan tersebut]</h4> diikuti tabel 3 kolom (Tahapan | Kegiatan | Alokasi Waktu) dengan tiga baris tahapan: Pendahuluan, Kegiatan Inti, Penutup.
 Setiap kegiatan inti WAJIB mencantumkan kode TP yang dirujuk, contoh (TP A.1.1).
 <h3>E. Asesmen Pembelajaran</h3> : tiga <h4> berurutan.
@@ -198,6 +195,7 @@ exports.hapusModul = async (req, res) => {
   req.session.pesan = 'Modul ajar berhasil dihapus';
   res.redirect('/guru');
 };
+
 
 
 
