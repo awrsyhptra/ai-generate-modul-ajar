@@ -8,10 +8,10 @@ exports.byUser = async (userId) => {
   return rows;
 };
 
-exports.create = async (userId, atpId, kelasId, judul, semester) => {
+exports.create = async (userId, atpId, kelasId, judul, semester, jumlahPertemuan) => {
   const [res] = await db.query(
-    'INSERT INTO modul_ajar (user_id, atp_id, kelas_id, judul, semester) VALUES (?, ?, ?, ?, ?)',
-    [userId, atpId, kelasId, judul, semester]);
+    'INSERT INTO modul_ajar (user_id, atp_id, kelas_id, judul, semester, jumlah_pertemuan) VALUES (?, ?, ?, ?, ?, ?)',
+    [userId, atpId, kelasId, judul, semester, jumlahPertemuan || 4]);
   return res.insertId;
 };
 
@@ -62,3 +62,16 @@ exports.getContent = async (modulId) => {
 
 exports.delete = (id, userId) =>
   db.query('UPDATE modul_ajar SET deleted_at = NOW() WHERE id = ? AND user_id = ?', [id, userId]);
+
+
+// Klaim atomik anti double-generate: hanya berhasil jika status BUKAN 'generating'
+exports.claimGenerating = async (id, userId) => {
+  const [res] = await db.query(
+    `UPDATE modul_ajar SET status = 'generating'
+       WHERE id = ? AND user_id = ? AND deleted_at IS NULL
+         AND (status IS NULL OR status <> 'generating')`,
+    [id, userId]
+  );
+  return res.affectedRows > 0;
+};
+

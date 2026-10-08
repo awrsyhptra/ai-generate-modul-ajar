@@ -2,25 +2,31 @@
 <%- include('../partials/navbar') %>
 
 <main class="container">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-    <div>
-      <a href="/guru" class="btn btn-small" style="text-decoration: none; margin-bottom: 8px; display: inline-block;">&larr; Kembali ke Dashboard</a>
-      <h1 style="margin: 0;"><%= modul.judul %></h1>
-      <p class="muted" style="margin: 4px 0 0 0;">
-        Kelas <%= modul.kelas %> (Fase <%= modul.fase %>) &bull; Semester <%= modul.semester %> &bull; ATP: <%= modul.judul_atp %>
-      </p>
-    </div>
-    <div style="display: flex; gap: 8px;">
-      <a href="/guru/modul/<%= modul.id %>/generate" class="btn btn-small" onclick="return confirm('Apakah Anda yakin ingin menyusun ulang modul ini dengan AI?');">🔄 Susun Ulang AI</a>
+  <div class="doc-actions">
+    <a href="/guru" class="btn btn-small" style="text-decoration: none;">&larr; Kembali ke Dashboard</a>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <form action="/guru/modul/<%= modul.id %>/generate" method="POST" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menyusun ulang modul ini dengan AI?');">
+        <button type="submit" class="btn btn-small">🔄 Susun Ulang AI</button>
+      </form>
       <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
     </div>
   </div>
 
-  <article class="card" style="line-height: 1.7; padding: 32px;">
+  <article class="card modul-doc">
+    <header class="modul-kop">
+      <p class="kop-eyebrow">Modul Ajar</p>
+      <h1 class="kop-judul"><%= modul.judul %></h1>
+      <p class="kop-meta">Kurikulum Merdeka &nbsp;•&nbsp; Fase <%= modul.fase %> &nbsp;•&nbsp; Kelas <%= modul.kelas %> &nbsp;•&nbsp; Semester <%= modul.semester %> &nbsp;•&nbsp; <%= modul.jumlah_pertemuan || 4 %> Pertemuan</p>
+      <p class="kop-atp"><%= modul.judul_atp %></p>
+      <hr class="kop-garis-ganda">
+    </header>
+
     <% if (!konten) { %>
       <div style="text-align: center; padding: 40px 20px;">
         <p class="muted">Konten modul ini belum dibuat atau masih kosong.</p>
-        <a href="/guru/modul/<%= modul.id %>/generate" class="btn btn-primary">⚡ Generate dengan AI 9Router</a>
+        <form action="/guru/modul/<%= modul.id %>/generate" method="POST" style="display: inline;" onsubmit="return confirm('Susun modul ini dengan AI?')">
+          <button type="submit" class="btn btn-primary">⚡ Generate dengan AI 9Router</button>
+        </form>
       </div>
     <% } else { %>
       <div class="konten-modul">
@@ -31,40 +37,41 @@
 </main>
 
 <style>
+/* ===== Kop dokumen: gaya kop surat (hitam-putih) ===== */
+.doc-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.modul-doc { padding: 0; overflow: hidden; }
+.modul-kop { background: #fff; color: #111; padding: 28px 36px 0; text-align: center; }
+.kop-eyebrow { margin: 0 0 8px; font-size: .78rem; letter-spacing: .24em; text-transform: uppercase; color: #555; font-weight: 700; }
+.kop-judul { margin: 0 0 10px; font-size: 2rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: .02em; }
+.kop-garis-ganda { border: 0; border-top: 3px solid #000; border-bottom: 1px solid #000; height: 5px; margin: 0; padding: 0; }
+.kop-meta { margin: 0 0 6px; font-size: .92rem; color: #333; }
+.kop-atp { margin: 0 0 18px; font-size: .85rem; color: #666; font-style: italic; }
+
+/* ===== Isi modul: hitam-putih, tertata rapi ===== */
+.konten-modul { padding: 10px 36px 36px; line-height: 1.75; color: #111; }
+.konten-modul h2 { color: #000; font-size: 1.2rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 3px double #000; padding-bottom: 8px; margin: 34px 0 16px; }
+.konten-modul h3 { color: #000; font-size: 1.02rem; margin: 24px 0 10px; }
+.konten-modul h4 { color: #000; font-size: .95rem; margin: 18px 0 8px; }
+.konten-modul p { margin: 10px 0; text-align: justify; }
+.konten-modul ul, .konten-modul ol { padding-left: 24px; margin: 10px 0; }
+.konten-modul li { margin-bottom: 6px; }
+.konten-modul table { margin: 16px 0; width: 100%; border-collapse: collapse; font-size: .92rem; }
+.konten-modul table th, .konten-modul table td { border: 1px solid #000; padding: 9px 12px; vertical-align: top; text-align: left; }
+.konten-modul table th { background: #000; color: #fff; }
+.konten-modul table tr:nth-child(even) td { background: #f5f5f5; }
+.konten-modul strong { color: #000; }
+
+/* ===== Cetak / simpan PDF ===== */
 @media print {
-  .navbar, .btn, a { display: none !important; }
+  .navbar, .doc-actions { display: none !important; }
+  body { background: #fff; }
   .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-  .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
-}
-.konten-modul h2 {
-  color: var(--hijau-tua);
-  border-bottom: 2px solid var(--garis);
-  padding-bottom: 6px;
-  margin-top: 28px;
-}
-.konten-modul h3 {
-  color: #1e293b;
-  margin-top: 20px;
-}
-.konten-modul ul, .konten-modul ol {
-  padding-left: 24px;
-  margin: 10px 0;
-}
-.konten-modul li {
-  margin-bottom: 6px;
-}
-.konten-modul table {
-  margin: 16px 0;
-  width: 100%;
-  border-collapse: collapse;
-}
-.konten-modul table th, .konten-modul table td {
-  border: 1px solid #cbd5e1;
-  padding: 8px 12px;
-}
-.konten-modul table th {
-  background: #f8fafc;
+  .card { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+  .konten-modul table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .konten-modul h2, .konten-modul h3, .konten-modul h4 { page-break-after: avoid; }
+  .konten-modul table, .konten-modul tr { page-break-inside: avoid; }
 }
 </style>
 
 <%- include('../partials/foot') %>
+
