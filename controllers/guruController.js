@@ -92,7 +92,7 @@ async function prosesGenerate(modulId, userId) {
 // Susun system prompt + user prompt dari data modul
 function bangunPrompt(modul, tpText, cpText) {
 // Kontrak format: ditulis sekali di system prompt agar stabil di setiap generate
-    const systemPrompt = `Kamu adalah penyusun Modul Ajar Kurikulum Merdeka (Kemendikbudristek) untuk jenjang SD yang presisi dan konsisten.
+    const systemPrompt = `Anda adalah penyusun Modul Ajar Kurikulum Merdeka (Kemendikbudristek) untuk jenjang SD yang presisi dan konsisten.
 
 KONTRAK FORMAT OUTPUT — patuhi di setiap respons tanpa kecuali:
 1. Seluruh respons HARUS berupa satu dokumen HTML valid. Dilarang menulis kalimat pembuka, kalimat penutup, atau penjelasan apa pun di luar HTML.
@@ -195,6 +195,7 @@ exports.hapusModul = async (req, res) => {
   req.session.pesan = 'Modul ajar berhasil dihapus';
   res.redirect('/guru');
 };
+
 
 
 
