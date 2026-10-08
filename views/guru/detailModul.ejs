@@ -16,9 +16,9 @@
     <header class="modul-kop">
       <p class="kop-eyebrow">Modul Ajar</p>
       <h1 class="kop-judul"><%= modul.judul %></h1>
-      <hr class="kop-rule">
       <p class="kop-meta">Kurikulum Merdeka &nbsp;•&nbsp; Fase <%= modul.fase %> &nbsp;•&nbsp; Kelas <%= modul.kelas %> &nbsp;•&nbsp; Semester <%= modul.semester %> &nbsp;•&nbsp; <%= modul.jumlah_pertemuan || 4 %> Pertemuan</p>
       <p class="kop-atp"><%= modul.judul_atp %></p>
+      <hr class="kop-garis-ganda">
     </header>
 
     <% if (!konten) { %>
@@ -37,15 +37,15 @@
 </main>
 
 <style>
-/* ===== Kop dokumen: hitam-putih, gaya dokumen resmi ===== */
+/* ===== Kop dokumen: gaya kop surat (hitam-putih) ===== */
 .doc-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
 .modul-doc { padding: 0; overflow: hidden; }
-.modul-kop { background: #fff; color: #111; border: 2px solid #111; padding: 36px 32px 30px; text-align: center; }
+.modul-kop { background: #fff; color: #111; padding: 28px 36px 0; text-align: center; }
 .kop-eyebrow { margin: 0 0 8px; font-size: .78rem; letter-spacing: .24em; text-transform: uppercase; color: #555; font-weight: 700; }
-.kop-judul { margin: 0 0 12px; font-size: 2rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: .02em; }
-.kop-rule { width: 80px; height: 3px; background: #000; border: 0; margin: 0 auto 14px; }
+.kop-judul { margin: 0 0 10px; font-size: 2rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: .02em; }
+.kop-garis-ganda { border: 0; border-top: 3px solid #000; border-bottom: 1px solid #000; height: 5px; margin: 0; padding: 0; }
 .kop-meta { margin: 0 0 6px; font-size: .92rem; color: #333; }
-.kop-atp { margin: 0; font-size: .85rem; color: #666; font-style: italic; }
+.kop-atp { margin: 0 0 18px; font-size: .85rem; color: #666; font-style: italic; }
 
 /* ===== Isi modul: hitam-putih, tertata rapi ===== */
 .konten-modul { padding: 10px 36px 36px; line-height: 1.75; color: #111; }
@@ -74,3 +74,4 @@
 </style>
 
 <%- include('../partials/foot') %>
+
