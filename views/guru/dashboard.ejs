@@ -66,11 +66,15 @@
               <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
                 <% if (m.status === 'selesai') { %>
                   <a href="/guru/modul/<%= m.id %>" class="btn btn-primary btn-small">👁️ Lihat</a>
-                  <a href="/guru/modul/<%= m.id %>/generate" class="btn btn-small" onclick="return confirm('Generate ulang akan menyusun kembali modul ini. Lanjutkan?')">🔄 Ulang</a>
+                  <form action="/guru/modul/<%= m.id %>/generate" method="POST" style="display: inline;" onsubmit="return confirm('Generate ulang akan menyusun kembali modul ini. Lanjutkan?')">
+                    <button type="submit" class="btn btn-small">🔄 Ulang</button>
+                  </form>
                 <% } else if (m.status === 'generating') { %>
                   <span class="badge badge-generating">⏳ Sedang Proses</span>
                 <% } else { %>
-                  <a href="/guru/modul/<%= m.id %>/generate" class="btn btn-primary btn-small">⚡ Generate AI</a>
+                  <form action="/guru/modul/<%= m.id %>/generate" method="POST" style="display: inline;" onsubmit="return confirm('Susun modul ini dengan AI?')">
+                    <button type="submit" class="btn btn-primary btn-small">⚡ Generate AI</button>
+                  </form>
                 <% } %>
                 <form action="/guru/modul/<%= m.id %>/hapus" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus modul ini?')">
                   <button type="submit" class="btn btn-small" style="color: #ef4444; background: transparent; padding: 4px 6px;">🗑️</button>
@@ -95,4 +99,11 @@
     </table>
   </section>
 </main>
+<% if (modul.some(m => m.status === 'generating')) { %>
+<script>
+// Ada modul yang sedang disusun AI: refresh otomatis tiap 5 detik sampai selesai
+setTimeout(function(){ window.location.reload(); }, 5000);
+</script>
+<% } %>
 <%- include('../partials/foot') %>
+
