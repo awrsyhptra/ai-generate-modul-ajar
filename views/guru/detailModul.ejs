@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+    <div>
+      <a href="/guru" class="btn btn-small" style="text-decoration: none; margin-bottom: 8px; display: inline-block;">&larr; Kembali ke Dashboard</a>
+      <h1 style="margin: 0;"><%= modul.judul %></h1>
+      <p class="muted" style="margin: 4px 0 0 0;">
+        Kelas <%= modul.kelas %> (Fase <%= modul.fase %>) &bull; Semester <%= modul.semester %> &bull; ATP: <%= modul.judul_atp %>
+      </p>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="/guru/modul/<%= modul.id %>/generate" class="btn btn-small" onclick="return confirm('Apakah Anda yakin ingin menyusun ulang modul ini dengan AI?');">🔄 Susun Ulang AI</a>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+    </div>
+  </div>
+
+  <article class="card" style="line-height: 1.7; padding: 32px;">
+    <% if (!konten) { %>
+      <div style="text-align: center; padding: 40px 20px;">
+        <p class="muted">Konten modul ini belum dibuat atau masih kosong.</p>
+        <a href="/guru/modul/<%= modul.id %>/generate" class="btn btn-primary">⚡ Generate dengan AI 9Router</a>
+      </div>
+    <% } else { %>
+      <div class="konten-modul">
+        <%- konten %>
+      </div>
+    <% } %>
+  </article>
+</main>
+
+<style>
+@media print {
+  .navbar, .btn, a { display: none !important; }
+  .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+}
+.konten-modul h2 {
+  color: var(--hijau-tua);
+  border-bottom: 2px solid var(--garis);
+  padding-bottom: 6px;
+  margin-top: 28px;
+}
+.konten-modul h3 {
+  color: #1e293b;
+  margin-top: 20px;
+}
+.konten-modul ul, .konten-modul ol {
+  padding-left: 24px;
+  margin: 10px 0;
+}
+.konten-modul li {
+  margin-bottom: 6px;
+}
+.konten-modul table {
+  margin: 16px 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+.konten-modul table th, .konten-modul table td {
+  border: 1px solid #cbd5e1;
+  padding: 8px 12px;
+}
+.konten-modul table th {
+  background: #f8fafc;
+}
+</style>
+
+<%- include('../partials/foot') %>

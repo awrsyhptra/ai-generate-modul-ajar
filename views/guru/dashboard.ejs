@@ -1,0 +1,98 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="container">
+  <h1>Dashboard Guru</h1>
+  <% if (pesan) { %><div class="alert alert-info"><%= pesan %></div><% } %>
+  <% if (typeof error !== 'undefined' && error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <section class="card">
+    <h2>Buat Modul Ajar Baru</h2>
+    <form action="/guru/modul" method="POST">
+      <div class="form-grid">
+        <div><label>Judul Modul</label><input name="judul" placeholder="Contoh: Modul Ajar Huruf Hijaiah" required></div>
+        <div>
+          <label>Kelas</label>
+          <select name="kelas_id" required>
+            <% kelas.forEach(k => { %><option value="<%= k.id %>">Kelas <%= k.tingkat %> (Fase <%= k.fase %>)</option><% }) %>
+          </select>
+        </div>
+        <div>
+          <label>Alur Tujuan Pembelajaran</label>
+          <select name="atp_id" required>
+            <% if (atp.length === 0) { %><option value="">Belum ada ATP</option><% } %>
+            <% atp.forEach(a => { %><option value="<%= a.id %>">[Fase <%= a.fase %>] <%= a.judul %></option><% }) %>
+          </select>
+        </div>
+        <div>
+          <label>Semester</label>
+          <select name="semester"><option value="1">1</option><option value="2">2</option></select>
+        </div>
+      </div>
+      <div style="margin-top: 14px;">
+        <button class="btn btn-primary" type="submit">Buat Modul</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Modul Ajar Saya</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Judul</th>
+          <th>Kelas</th>
+          <th>Semester</th>
+          <th>Status</th>
+          <th>Dibuat</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (modul.length === 0) { %>
+          <tr><td colspan="6" class="muted">Belum ada modul ajar.</td></tr>
+        <% } %>
+        <% modul.forEach(m => { %>
+          <tr>
+            <td><strong><%= m.judul %></strong></td>
+            <td>Kelas <%= m.kelas %></td>
+            <td><%= m.semester %></td>
+            <td>
+              <span class="badge badge-<%= m.status %>">
+                <%= m.status === 'selesai' ? 'Selesai' : (m.status === 'generating' ? 'Memproses AI...' : (m.status === 'gagal' ? 'Gagal' : 'Draft')) %>
+              </span>
+            </td>
+            <td><%= new Date(m.created_at).toLocaleDateString('id-ID') %></td>
+            <td>
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <% if (m.status === 'selesai') { %>
+                  <a href="/guru/modul/<%= m.id %>" class="btn btn-primary btn-small">👁️ Lihat</a>
+                  <a href="/guru/modul/<%= m.id %>/generate" class="btn btn-small" onclick="return confirm('Generate ulang akan menyusun kembali modul ini. Lanjutkan?')">🔄 Ulang</a>
+                <% } else if (m.status === 'generating') { %>
+                  <span class="badge badge-generating">⏳ Sedang Proses</span>
+                <% } else { %>
+                  <a href="/guru/modul/<%= m.id %>/generate" class="btn btn-primary btn-small">⚡ Generate AI</a>
+                <% } %>
+                <form action="/guru/modul/<%= m.id %>/hapus" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus modul ini?')">
+                  <button type="submit" class="btn btn-small" style="color: #ef4444; background: transparent; padding: 4px 6px;">🗑️</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Capaian Pembelajaran (Referensi)</h2>
+    <table>
+      <thead><tr><th>Fase</th><th>Elemen</th><th>Deskripsi</th></tr></thead>
+      <tbody>
+        <% cp.forEach(c => { %>
+          <tr><td><%= c.fase %></td><td><%= c.elemen %></td><td><%= c.deskripsi %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+<%- include('../partials/foot') %>

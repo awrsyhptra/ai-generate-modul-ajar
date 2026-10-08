@@ -1,0 +1,14 @@
+<%- include('partials/head') %>
+<main class="login-wrap">
+  <form class="card login-card" action="/login" method="POST">
+    <h1>Masuk</h1>
+    <p class="muted">Generator Modul Ajar PAI dan Budi Pekerti SD/MI</p>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+    <label>Email</label>
+    <input type="email" name="email" required autofocus>
+    <label>Password</label>
+    <input type="password" name="password" required>
+    <button class="btn btn-primary btn-block" type="submit">Masuk</button>
+  </form>
+</main>
+<%- include('partials/foot') %>

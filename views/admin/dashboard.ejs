@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="container">
+  <h1>Dashboard Administrator</h1>
+  <% if (pesan) { %><div class="alert alert-info"><%= pesan %></div><% } %>
+
+  <section class="stats">
+    <div class="stat"><span><%= statistik.guru %></span>Guru</div>
+    <div class="stat"><span><%= statistik.modul %></span>Modul Ajar</div>
+    <div class="stat"><span><%= statistik.atp %></span>ATP</div>
+    <div class="stat"><span><%= statistik.cp %></span>Capaian Pembelajaran</div>
+  </section>
+
+  <section class="card">
+    <h2>Tambah Guru</h2>
+    <form action="/admin/guru" method="POST" class="form-grid">
+      <div><label>Nama</label><input name="nama" required></div>
+      <div><label>NIP (opsional)</label><input name="nip"></div>
+      <div><label>Email</label><input type="email" name="email" required></div>
+      <div><label>Password</label><input type="password" name="password" minlength="6" required></div>
+      <div><button class="btn btn-primary" type="submit">Simpan</button></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Daftar Guru</h2>
+    <table>
+      <thead><tr><th>Nama</th><th>Email</th><th>NIP</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>
+        <% if (guru.length === 0) { %><tr><td colspan="5" class="muted">Belum ada guru.</td></tr><% } %>
+        <% guru.forEach(g => { %>
+          <tr>
+            <td><%= g.nama %></td><td><%= g.email %></td><td><%= g.nip || '-' %></td>
+            <td><span class="badge <%= g.is_active ? 'badge-ok' : 'badge-off' %>"><%= g.is_active ? 'Aktif' : 'Nonaktif' %></span></td>
+            <td>
+              <form action="/admin/guru/<%= g.id %>/status" method="POST">
+                <input type="hidden" name="aktif" value="<%= g.is_active ? 0 : 1 %>">
+                <button class="btn btn-small" type="submit"><%= g.is_active ? 'Nonaktifkan' : 'Aktifkan' %></button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Capaian Pembelajaran (Referensi)</h2>
+    <table>
+      <thead><tr><th>Fase</th><th>Elemen</th><th>Deskripsi</th></tr></thead>
+      <tbody>
+        <% cp.forEach(c => { %>
+          <tr><td><%= c.fase %></td><td><%= c.elemen %></td><td><%= c.deskripsi %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</main>
+<%- include('../partials/foot') %>

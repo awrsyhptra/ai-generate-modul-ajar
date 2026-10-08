@@ -1,0 +1,9 @@
+<header class="navbar">
+  <div class="navbar-brand">Generator Modul Ajar PAI-BP</div>
+  <% if (user) { %>
+    <div class="navbar-user">
+      <span><%= user.nama %> (<%= user.role %>)</span>
+      <form action="/logout" method="POST"><button class="btn btn-light" type="submit">Keluar</button></form>
+    </div>
+  <% } %>
+</header>
