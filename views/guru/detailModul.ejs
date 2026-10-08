@@ -2,21 +2,26 @@
 <%- include('../partials/navbar') %>
 
 <main class="container">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-    <div>
-      <a href="/guru" class="btn btn-small" style="text-decoration: none; margin-bottom: 8px; display: inline-block;">&larr; Kembali ke Dashboard</a>
-      <h1 style="margin: 0;"><%= modul.judul %></h1>
-      <p class="muted" style="margin: 4px 0 0 0;">
-        Kelas <%= modul.kelas %> (Fase <%= modul.fase %>) &bull; Semester <%= modul.semester %> &bull; ATP: <%= modul.judul_atp %>
-      </p>
-    </div>
-    <div style="display: flex; gap: 8px;">
+  <div class="doc-actions">
+    <a href="/guru" class="btn btn-small" style="text-decoration: none;">&larr; Kembali ke Dashboard</a>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
       <a href="/guru/modul/<%= modul.id %>/generate" class="btn btn-small" onclick="return confirm('Apakah Anda yakin ingin menyusun ulang modul ini dengan AI?');">🔄 Susun Ulang AI</a>
       <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
     </div>
   </div>
 
-  <article class="card" style="line-height: 1.7; padding: 32px;">
+  <article class="card modul-doc">
+    <header class="modul-kop">
+      <p class="kop-eyebrow">Modul Ajar &bull; Kurikulum Merdeka</p>
+      <h1 class="kop-judul"><%= modul.judul %></h1>
+      <div class="kop-meta">
+        <span class="kop-chip">Fase <%= modul.fase %></span>
+        <span class="kop-chip">Kelas <%= modul.kelas %></span>
+        <span class="kop-chip">Semester <%= modul.semester %></span>
+      </div>
+      <p class="kop-atp"><%= modul.judul_atp %></p>
+    </header>
+
     <% if (!konten) { %>
       <div style="text-align: center; padding: 40px 20px;">
         <p class="muted">Konten modul ini belum dibuat atau masih kosong.</p>
@@ -31,39 +36,58 @@
 </main>
 
 <style>
-@media print {
-  .navbar, .btn, a { display: none !important; }
-  .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-  .card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+/* ===== Kop / blok judul dokumen ===== */
+.doc-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.modul-doc { padding: 0; overflow: hidden; }
+.modul-kop {
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 60%, #134e4a 100%);
+  color: #fff;
+  padding: 36px 36px 30px;
+  position: relative;
 }
+.modul-kop::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+.kop-eyebrow { margin: 0 0 10px; font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; color: #99f6e4; font-weight: 700; }
+.kop-judul { margin: 0 0 14px; font-size: 2rem; line-height: 1.25; text-transform: capitalize; color: #fff; }
+.kop-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.kop-chip { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.4); padding: 4px 14px; border-radius: 999px; font-size: .8rem; font-weight: 600; }
+.kop-atp { margin: 0; font-size: .92rem; color: #ccfbf1; }
+
+/* ===== Isi modul hasil AI ===== */
+.konten-modul { padding: 10px 36px 36px; line-height: 1.75; }
 .konten-modul h2 {
   color: var(--hijau-tua);
-  border-bottom: 2px solid var(--garis);
-  padding-bottom: 6px;
-  margin-top: 28px;
+  font-size: 1.25rem;
+  background: #f0fdfa;
+  border-left: 6px solid var(--hijau);
+  padding: 10px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 34px 0 16px;
 }
-.konten-modul h3 {
-  color: #1e293b;
-  margin-top: 20px;
-}
-.konten-modul ul, .konten-modul ol {
-  padding-left: 24px;
-  margin: 10px 0;
-}
-.konten-modul li {
-  margin-bottom: 6px;
-}
-.konten-modul table {
-  margin: 16px 0;
-  width: 100%;
-  border-collapse: collapse;
-}
-.konten-modul table th, .konten-modul table td {
-  border: 1px solid #cbd5e1;
-  padding: 8px 12px;
-}
-.konten-modul table th {
-  background: #f8fafc;
+.konten-modul h3 { color: var(--hijau); font-size: 1.05rem; margin: 24px 0 10px; }
+.konten-modul h4 { color: #334155; font-size: .95rem; margin: 18px 0 8px; }
+.konten-modul p { margin: 10px 0; text-align: justify; }
+.konten-modul ul, .konten-modul ol { padding-left: 24px; margin: 10px 0; }
+.konten-modul li { margin-bottom: 6px; }
+.konten-modul table { margin: 16px 0; width: 100%; border-collapse: collapse; font-size: .92rem; }
+.konten-modul table th, .konten-modul table td { border: 1px solid #cbd5e1; padding: 9px 12px; vertical-align: top; text-align: left; }
+.konten-modul table th { background: var(--hijau-tua); color: #fff; }
+.konten-modul table tr:nth-child(even) td { background: #f8fafc; }
+.konten-modul strong { color: #0f172a; }
+
+/* ===== Cetak / simpan PDF ===== */
+@media print {
+  .navbar, .doc-actions { display: none !important; }
+  body { background: #fff; }
+  .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  .card { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+  .modul-kop, .konten-modul table th, .konten-modul h2 {
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .konten-modul h2, .konten-modul h3 { page-break-after: avoid; }
+  .konten-modul table, .konten-modul tr { page-break-inside: avoid; }
 }
 </style>
 

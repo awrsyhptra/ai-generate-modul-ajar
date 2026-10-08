@@ -58,7 +58,8 @@ KONTRAK FORMAT OUTPUT — patuhi di setiap respons tanpa kecuali:
    <h2>3. LAMPIRAN</h2>
 5. Dilarang menambah bagian baru, menghapus bagian, mengubah urutan, atau mengubah teks heading — walau satu huruf.
 6. Sub-bagian memakai <h3> dengan judul persis seperti pada <STRUKTUR_WAJIB> di pesan pengguna; sub-sub-bagian memakai <h4>.
-7. Isi memakai <p>, <ul>/<ol> dengan <li>, atau <table> sesuai perintah tiap sub-bagian.`;
+7. Isi memakai <p>, <ul>/<ol> dengan <li>, atau <table> sesuai perintah tiap sub-bagian.
+8. Mulailah dokumen LANGSUNG dengan <h2>1. INFORMASI UMUM</h2>. Jangan membuat blok judul, kop, atau salam pembuka — kop dokumen sudah disediakan oleh template aplikasi.`;
 
     // Data dipisah dari instruksi dengan delimiter agar AI tidak tercampur
     const userPrompt = `Susun draf Modul Ajar berdasarkan <DATA> berikut. Ikuti <STRUKTUR_WAJIB> dan <ATURAN_ISI> dengan tepat.
@@ -75,7 +76,7 @@ ${tpText}
 
 <STRUKTUR_WAJIB>
 <h2>1. INFORMASI UMUM</h2>
-<h3>A. Identitas Modul</h3> : tabel 2 kolom (Aspek | Keterangan) berisi Nama Penyusun, Satuan Pendidikan, Tahun Ajaran, Jenjang/Fase/Kelas, Alokasi Waktu.
+<h3>A. Identitas Modul</h3> : tabel 2 kolom (Aspek | Keterangan) berisi TEPAT 4 baris ini — Judul/Topik, Jenjang/Fase/Kelas, Semester, Alur Tujuan Pembelajaran (ATP). Dilarang menambah baris lain seperti nama penyusun, satuan pendidikan, tahun ajaran, atau alokasi waktu karena datanya tidak tersedia.
 <h3>B. Kompetensi Awal</h3> : satu <p> berisi 2-3 kalimat.
 <h3>C. Profil Pelajar Pancasila</h3> : <ul>, tiap dimensi disertai satu kalimat alasan.
 <h3>D. Sarana dan Prasarana</h3> : <ul>.
@@ -152,4 +153,5 @@ exports.hapusModul = async (req, res) => {
   req.session.pesan = 'Modul ajar berhasil dihapus';
   res.redirect('/guru');
 };
+
 
