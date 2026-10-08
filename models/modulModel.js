@@ -8,10 +8,10 @@ exports.byUser = async (userId) => {
   return rows;
 };
 
-exports.create = async (userId, atpId, kelasId, judul, semester) => {
+exports.create = async (userId, atpId, kelasId, judul, semester, jumlahPertemuan) => {
   const [res] = await db.query(
-    'INSERT INTO modul_ajar (user_id, atp_id, kelas_id, judul, semester) VALUES (?, ?, ?, ?, ?)',
-    [userId, atpId, kelasId, judul, semester]);
+    'INSERT INTO modul_ajar (user_id, atp_id, kelas_id, judul, semester, jumlah_pertemuan) VALUES (?, ?, ?, ?, ?, ?)',
+    [userId, atpId, kelasId, judul, semester, jumlahPertemuan || 4]);
   return res.insertId;
 };
 
@@ -74,3 +74,4 @@ exports.claimGenerating = async (id, userId) => {
   );
   return res.affectedRows > 0;
 };
+
